@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash('/c/Program Files/PostgreSQL/18/bin/psql.exe' -h db.ukterctvbppimteejvfd.supabase.co -p 5432 -U postgres -d postgres -c 'SELECT id, name, mobile, role, verified FROM users ORDER BY created_at;')"
+    ]
+  }
+}
