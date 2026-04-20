@@ -1,0 +1,32 @@
+R Square HR Services — Project Prompts
+========================================
+Saved: 2026-04-17
+
+1. Update frontend with existing link as attached pdf and write content as it is
+   without missing any information.
+   [Attached: LITERATURE.pdf — 15-page company literature PDF]
+
+2. Create Claude.md file
+
+3. Update frontend with existing link LITERATURE.pdf and create link with attached
+   LINK.pdf and write content as it is without missing any information.
+   [Attached: LITERATURE.pdf + LINK.pdf — SR 1=About Us, SR 2=Management Team, SR 3=Services]
+
+4. Integrate with my frontend
+   [Backend integration with Spring Boot REST API]
+
+5. Create About with sub link introduction, Mission & Vision, Quality Policy and
+   Team with sub link S N Rao, Riddhish Rao, Resource Team, and last Services and
+   all its sub links with all content
+
+6. Update frontend with existing link LITERATURE.pdf and create link with attached
+   LINK.pdf and write content as it is without missing any information.
+   Including About with sub link introduction, Mission & Vision, Quality Policy and
+   Team with sub link S N Rao, Riddhish Rao, Resource Team, and last Services and
+   all its sub links
+
+7. Services sub Link must be working with its on click with justify text
+
+8. Create md file for me
+
+9. Please save me prompt in text file

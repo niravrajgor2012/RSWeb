@@ -31,7 +31,11 @@
     <div class="lg:col-span-2 space-y-6">
       <Card padding="lg">
         <h2 class="text-xl font-black mb-4">Overview</h2>
-        <p class="text-slate-600 leading-relaxed">{svc.longDesc}</p>
+        <div class="space-y-4">
+          {#each svc.longDesc.split('\n\n') as para}
+            <p class="text-slate-600 leading-relaxed text-justify">{para}</p>
+          {/each}
+        </div>
       </Card>
 
       <Card padding="lg">

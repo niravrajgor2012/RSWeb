@@ -22,8 +22,18 @@ export interface Service {
 export interface TeamMember {
   name: string;
   designation: string;
+  roles: string[];
   bio: string;
+  expertise?: string[];
+  achievements?: string[];
+  education?: string;
+  personalNote?: string;
   photoUrl: string | null;
   email?: string;
   linkedin?: string;
+}
+
+export interface ResourceDept {
+  area: string;
+  nos: number;
 }

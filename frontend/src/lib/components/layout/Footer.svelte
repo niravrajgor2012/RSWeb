@@ -21,6 +21,7 @@
     { label: 'Institute Corner',  href: '/institute' },
     { label: 'List of Clients',   href: '/clients' },
     { label: 'Media',             href: '/media' },
+    { label: 'Sitemap',           href: '/sitemap' },
   ];
 
   const year = new Date().getFullYear();
@@ -98,7 +99,7 @@
       <div class="flex gap-4">
         <a href="/about" class="hover:text-white">Privacy Policy</a>
         <a href="/about" class="hover:text-white">Terms of Use</a>
-        <a href="/contact" class="hover:text-white">Sitemap</a>
+        <a href="/sitemap" class="hover:text-white">Sitemap</a>
       </div>
     </div>
   </div>
