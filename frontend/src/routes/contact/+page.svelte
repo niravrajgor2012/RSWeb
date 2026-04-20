@@ -7,6 +7,7 @@
   import { MapPin, Phone, Mail, Clock, CheckCircle, Send } from 'lucide-svelte';
   import { services } from '$lib/data/services.ts';
 
+  import { supabase } from '$lib/supabase.ts';
   import { page } from '$app/stores';
   const preselect = $page.url.searchParams.get('service') ?? '';
 
@@ -26,10 +27,16 @@
   async function handleSubmit(e: Event) {
     e.preventDefault();
     sending = true;
-    await new Promise(r => setTimeout(r, 1000));
+    const { error } = await supabase
+      .from('contact_enquiries')
+      .insert({ name, email, mobile: mobile || null, message });
     sending = false;
-    sent = true;
-    ui.toast('Message sent! We\'ll be in touch within 1 business day.', 'success');
+    if (error) {
+      ui.toast(error.message ?? 'Failed to send message.', 'error');
+    } else {
+      sent = true;
+      ui.toast("Message sent! We'll be in touch within 1 business day.", 'success');
+    }
   }
 
   const contactDetails = [
