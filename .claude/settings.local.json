@@ -5,7 +5,19 @@
       "Bash(cmd /c \"ren d:\\\\RSWeb\\\\y frontend\")",
       "Bash(npm list *)",
       "Bash(npm install *)",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(netlify --version)",
+      "Bash(npx netlify-cli *)",
+      "Bash(npx netlify *)",
+      "Bash(netlify status *)",
+      "Bash(netlify login *)",
+      "Bash(netlify sites:list)",
+      "Bash(netlify link *)",
+      "Bash(netlify env:set NETLIFY_SKIP_FRAMEWORK_DETECTION 1)",
+      "Bash(netlify deploy *)",
+      "Bash(netlify sites:deploy --trigger)",
+      "Bash(netlify build *)",
+      "Bash(netlify api *)"
     ]
   }
 }
