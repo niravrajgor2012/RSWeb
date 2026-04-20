@@ -24,7 +24,13 @@
       "Bash(git push *)",
       "Bash(git remote *)",
       "Bash(git pull *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(mvn compile *)",
+      "Bash(./mvnw compile *)",
+      "Bash(where mvn *)",
+      "Read(//c/Program Files/**)",
+      "Bash(netlify env:set VITE_SUPABASE_URL https://ukterctvbppimteejvfd.supabase.co)",
+      "Bash(netlify env:set VITE_SUPABASE_ANON_KEY sb_publishable_Ci_m1WOuEaLsjl0jbcu7pw_dvp2Bq7A)"
     ]
   }
 }
