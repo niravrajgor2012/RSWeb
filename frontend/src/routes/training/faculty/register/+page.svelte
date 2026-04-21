@@ -2,35 +2,52 @@
   import { goto } from '$app/navigation';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { ui } from '$lib/stores/ui.svelte.ts';
+  import { supabase } from '$lib/supabase.ts';
   import Input from '$lib/components/ui/Input.svelte';
   import Textarea from '$lib/components/ui/Textarea.svelte';
   import FileUpload from '$lib/components/ui/FileUpload.svelte';
-  import OTPInput from '$lib/components/ui/OTPInput.svelte';
   import Card from '$lib/components/ui/Card.svelte';
 
-  let step = $state<1|2>(1);
-  let loading = $state(false);
-  let countdown = $state(0);
-  let timer: ReturnType<typeof setInterval>;
+  let loading        = $state(false);
+  let name           = $state('');
+  let email          = $state('');
+  let mobile         = $state('');
+  let specialization = $state('');
+  let qualifications = $state('');
+  let bio            = $state('');
+  let cvFile         = $state<File | null>(null);
 
-  let name = $state(''), email = $state(''), mobile = $state('');
-  let specialization = $state(''), qualifications = $state(''), bio = $state('');
-  let cvFile = $state<File | null>(null);
-  let otp = $state('');
+  async function handleSubmit(e: Event) {
+    e.preventDefault();
+    loading = true;
+    const now = new Date().toISOString();
 
-  async function handleStep1(e: Event) {
-    e.preventDefault(); loading = true;
-    await new Promise(r => setTimeout(r, 700));
-    loading = false; step = 2;
-    countdown = 60; clearInterval(timer);
-    timer = setInterval(() => { if (--countdown <= 0) clearInterval(timer); }, 1000);
-    ui.toast('OTP sent!', 'success');
-  }
+    const { data: user, error: userErr } = await supabase
+      .from('users')
+      .insert({ name, email, mobile, role: 'FACULTY', verified: true, active: true, created_at: now, updated_at: now })
+      .select('id')
+      .single();
 
-  async function verifyOTP(val: string) {
-    if (val.length !== 6) return; loading = true;
-    await new Promise(r => setTimeout(r, 600));
-    auth.login({ id:'fac1', name, email, mobile, role:'faculty', verified:true, createdAt:new Date().toISOString() }, 'mock-fac-token');
+    if (userErr) {
+      ui.toast(userErr.message.includes('unique') ? 'Email or mobile already registered.' : userErr.message, 'error');
+      loading = false;
+      return;
+    }
+
+    const { error: facErr } = await supabase
+      .from('faculties')
+      .insert({ user_id: user.id, full_name: name, specialization: specialization || null, bio: bio || null, created_at: now, updated_at: now });
+
+    if (facErr) {
+      ui.toast(facErr.message, 'error');
+      loading = false;
+      return;
+    }
+
+    auth.login(
+      { id: user.id, name, email, mobile, role: 'faculty', verified: true, createdAt: now },
+      user.id
+    );
     loading = false;
     ui.toast('Faculty profile created!', 'success');
     goto('/training');
@@ -50,27 +67,21 @@
       <p class="text-slate-500 text-sm mt-1">Share your expertise with thousands of learners</p>
     </div>
     <div class="bg-white rounded-2xl card-shadow p-6">
-      {#if step === 1}
-        <form class="space-y-4" onsubmit={handleStep1}>
-          <div class="grid grid-cols-2 gap-4">
-            <Input label="Full Name" bind:value={name} required />
-            <Input label="Mobile" type="tel" bind:value={mobile} required />
-          </div>
-          <Input label="Email" type="email" bind:value={email} required />
-          <Input label="Specialization" placeholder="e.g. Labour Laws, PoSH, HR Analytics" bind:value={specialization} required />
-          <Input label="Qualifications" placeholder="e.g. MBA HR, LLB, PGDM" bind:value={qualifications} required />
-          <Textarea label="Brief Bio" placeholder="Tell learners about your experience and teaching approach..." bind:value={bio} rows={3} />
-          <FileUpload label="Upload CV" accept=".pdf,.doc,.docx" maxMb={5} bind:file={cvFile} hint="PDF or DOCX, max 5MB" />
-          <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
-            {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
-            Send OTP & Register
-          </button>
-        </form>
-      {:else}
-        <p class="text-center text-sm text-slate-600 mb-6">OTP sent to <span class="font-semibold">{mobile}</span></p>
-        <OTPInput bind:value={otp} onComplete={verifyOTP} />
-        {#if loading}<p class="text-center text-sm text-slate-500 mt-4">Verifying…</p>{/if}
-      {/if}
+      <form class="space-y-4" onsubmit={handleSubmit}>
+        <div class="grid grid-cols-2 gap-4">
+          <Input label="Full Name" bind:value={name} required />
+          <Input label="Mobile" type="tel" bind:value={mobile} required />
+        </div>
+        <Input label="Email" type="email" bind:value={email} required />
+        <Input label="Specialization" placeholder="e.g. Labour Laws, PoSH, HR Analytics" bind:value={specialization} required />
+        <Input label="Qualifications" placeholder="e.g. MBA HR, LLB, PGDM" bind:value={qualifications} required />
+        <Textarea label="Brief Bio" placeholder="Tell learners about your experience and teaching approach..." bind:value={bio} rows={3} />
+        <FileUpload label="Upload CV" accept=".pdf,.doc,.docx" maxMb={5} bind:file={cvFile} hint="PDF or DOCX, max 5MB" />
+        <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
+          {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
+          Register as Faculty
+        </button>
+      </form>
     </div>
   </div>
 </div>

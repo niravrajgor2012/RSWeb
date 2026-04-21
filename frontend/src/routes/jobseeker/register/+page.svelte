@@ -2,49 +2,51 @@
   import { goto } from '$app/navigation';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { ui } from '$lib/stores/ui.svelte.ts';
+  import { supabase } from '$lib/supabase.ts';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
-  import OTPInput from '$lib/components/ui/OTPInput.svelte';
 
-  let step      = $state<1 | 2>(1);
-  let loading   = $state(false);
-  let countdown = $state(0);
-  let timer: ReturnType<typeof setInterval>;
+  let loading = $state(false);
+  let name     = $state('');
+  let email    = $state('');
+  let mobile   = $state('');
+  let city     = $state('');
+  let qual     = $state('');
+  let password = $state('');
 
-  let name       = $state('');
-  let email      = $state('');
-  let mobile     = $state('');
-  let city       = $state('');
-  let qual       = $state('');
-  let password   = $state('');
-  let otp        = $state('');
-
-  const quals = ['10th','12th','Diploma','Graduate','Post Graduate','B.E./B.Tech','MBA','CA','Any Graduate'].map(q=>({label:q,value:q}));
+  const quals  = ['10th','12th','Diploma','Graduate','Post Graduate','B.E./B.Tech','MBA','CA','Any Graduate'].map(q=>({label:q,value:q}));
   const cities = ['Ahmedabad','Mumbai','Pune','Delhi','Bengaluru','Hyderabad','Surat','Chennai','Other'].map(c=>({label:c,value:c}));
 
-  function startCountdown() {
-    countdown = 60;
-    clearInterval(timer);
-    timer = setInterval(() => { if (--countdown <= 0) clearInterval(timer); }, 1000);
-  }
-
-  async function handleStep1(e: Event) {
+  async function handleSubmit(e: Event) {
     e.preventDefault();
     loading = true;
-    await new Promise(r => setTimeout(r, 700));
-    loading = false;
-    step = 2;
-    startCountdown();
-    ui.toast('OTP sent to your mobile!', 'success');
-  }
+    const now = new Date().toISOString();
 
-  async function verifyOTP(val: string) {
-    if (val.length !== 6) return;
-    loading = true;
-    await new Promise(r => setTimeout(r, 600));
+    const { data: user, error: userErr } = await supabase
+      .from('users')
+      .insert({ name, email, mobile, password_hash: password, role: 'JOBSEEKER', verified: true, active: true, created_at: now, updated_at: now })
+      .select('id')
+      .single();
+
+    if (userErr) {
+      ui.toast(userErr.message.includes('unique') ? 'Email or mobile already registered.' : userErr.message, 'error');
+      loading = false;
+      return;
+    }
+
+    const { error: jsErr } = await supabase
+      .from('job_seekers')
+      .insert({ user_id: user.id, full_name: name, city: city || null, qualification: qual || null, profile_complete: 0, created_at: now, updated_at: now });
+
+    if (jsErr) {
+      ui.toast(jsErr.message, 'error');
+      loading = false;
+      return;
+    }
+
     auth.login(
-      { id: 'js1', name, email, mobile, role: 'jobseeker', verified: true, createdAt: new Date().toISOString() },
-      'mock-js-token'
+      { id: user.id, name, email, mobile, role: 'jobseeker', verified: true, createdAt: now },
+      user.id
     );
     loading = false;
     ui.toast('Registration successful! Complete your profile to get noticed.', 'success');
@@ -64,54 +66,29 @@
         <span class="font-black text-brand-navy text-xl">RSQuare</span>
       </a>
       <h1 class="text-2xl font-black">Create Job Seeker Account</h1>
-      <p class="text-slate-500 text-sm mt-1">
-        {step === 1 ? 'Your details' : `Verify mobile ${mobile}`}
-      </p>
-    </div>
-
-    <div class="flex items-center gap-3 mb-6">
-      {#each [1,2] as s}
-        <div class="flex items-center gap-2 flex-1">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold {step >= s ? 'gradient-brand text-white' : 'bg-slate-100 text-slate-400'}">{s}</div>
-          <span class="text-xs font-medium {step >= s ? 'text-brand-blue' : 'text-slate-400'}">{s === 1 ? 'Your Details' : 'Verify OTP'}</span>
-        </div>
-        {#if s < 2}<div class="w-8 h-px bg-slate-200"></div>{/if}
-      {/each}
+      <p class="text-slate-500 text-sm mt-1">Find your dream job with RSQuare</p>
     </div>
 
     <div class="bg-white rounded-2xl card-shadow p-6">
-      {#if step === 1}
-        <form class="space-y-4" onsubmit={handleStep1}>
-          <div class="grid grid-cols-2 gap-4">
-            <Input label="Full Name" placeholder="Your name" bind:value={name} required />
-            <Input label="Mobile" type="tel" placeholder="9876543210" bind:value={mobile} required />
-          </div>
-          <Input label="Email" type="email" placeholder="you@email.com" bind:value={email} required />
-          <div class="grid grid-cols-2 gap-4">
-            <Select label="City" options={cities} bind:value={city} required />
-            <Select label="Qualification" options={quals} bind:value={qual} required />
-          </div>
-          <Input label="Password" type="password" placeholder="Min 8 characters" bind:value={password} required />
-          <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
-            {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
-            Send OTP & Continue
-          </button>
-        </form>
-        <p class="text-center text-sm text-slate-500 mt-4">
-          Already have an account? <a href="/auth/login" class="text-brand-blue font-semibold hover:underline">Login</a>
-        </p>
-      {:else}
-        <p class="text-center text-sm text-slate-600 mb-6">Enter the OTP sent to <span class="font-semibold">{mobile}</span></p>
-        <OTPInput bind:value={otp} onComplete={verifyOTP} />
-        {#if loading}<p class="text-center text-sm text-slate-500 mt-4">Verifying…</p>{/if}
-        <div class="text-center mt-4">
-          {#if countdown > 0}
-            <p class="text-sm text-slate-400">Resend in {countdown}s</p>
-          {:else}
-            <button onclick={() => step = 1} class="text-sm text-brand-blue font-semibold hover:underline">Resend OTP</button>
-          {/if}
+      <form class="space-y-4" onsubmit={handleSubmit}>
+        <div class="grid grid-cols-2 gap-4">
+          <Input label="Full Name" placeholder="Your name" bind:value={name} required />
+          <Input label="Mobile" type="tel" placeholder="9876543210" bind:value={mobile} required />
         </div>
-      {/if}
+        <Input label="Email" type="email" placeholder="you@email.com" bind:value={email} required />
+        <div class="grid grid-cols-2 gap-4">
+          <Select label="City" options={cities} bind:value={city} required />
+          <Select label="Qualification" options={quals} bind:value={qual} required />
+        </div>
+        <Input label="Password" type="password" placeholder="Min 8 characters" bind:value={password} required />
+        <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
+          {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
+          Create Account
+        </button>
+      </form>
+      <p class="text-center text-sm text-slate-500 mt-4">
+        Already have an account? <a href="/auth/login" class="text-brand-blue font-semibold hover:underline">Login</a>
+      </p>
     </div>
   </div>
 </div>

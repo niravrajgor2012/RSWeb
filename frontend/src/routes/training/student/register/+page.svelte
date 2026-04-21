@@ -2,36 +2,53 @@
   import { goto } from '$app/navigation';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { ui } from '$lib/stores/ui.svelte.ts';
+  import { supabase } from '$lib/supabase.ts';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import FileUpload from '$lib/components/ui/FileUpload.svelte';
-  import OTPInput from '$lib/components/ui/OTPInput.svelte';
 
-  let step = $state<1|2>(1);
-  let loading = $state(false);
-  let countdown = $state(0);
-  let timer: ReturnType<typeof setInterval>;
-
-  let name = $state(''), email = $state(''), mobile = $state('');
-  let institute = $state(''), course = $state(''), year = $state('');
-  let cvFile = $state<File | null>(null);
-  let otp = $state('');
+  let loading   = $state(false);
+  let name      = $state('');
+  let email     = $state('');
+  let mobile    = $state('');
+  let institute = $state('');
+  let course    = $state('');
+  let year      = $state('');
+  let cvFile    = $state<File | null>(null);
 
   const years = ['1st Year','2nd Year','3rd Year','Final Year','Pass-Out 2025','Pass-Out 2026'].map(y=>({label:y,value:y}));
 
-  async function handleStep1(e: Event) {
-    e.preventDefault(); loading = true;
-    await new Promise(r => setTimeout(r, 700));
-    loading = false; step = 2;
-    countdown = 60; clearInterval(timer);
-    timer = setInterval(() => { if (--countdown <= 0) clearInterval(timer); }, 1000);
-    ui.toast('OTP sent!', 'success');
-  }
+  async function handleSubmit(e: Event) {
+    e.preventDefault();
+    loading = true;
+    const now = new Date().toISOString();
 
-  async function verifyOTP(val: string) {
-    if (val.length !== 6) return; loading = true;
-    await new Promise(r => setTimeout(r, 600));
-    auth.login({ id:'stu1', name, email, mobile, role:'student', verified:true, createdAt:new Date().toISOString() }, 'mock-stu-token');
+    const { data: user, error: userErr } = await supabase
+      .from('users')
+      .insert({ name, email, mobile, role: 'STUDENT', verified: true, active: true, created_at: now, updated_at: now })
+      .select('id')
+      .single();
+
+    if (userErr) {
+      ui.toast(userErr.message.includes('unique') ? 'Email or mobile already registered.' : userErr.message, 'error');
+      loading = false;
+      return;
+    }
+
+    const { error: stuErr } = await supabase
+      .from('students')
+      .insert({ user_id: user.id, full_name: name, institute: institute || null, course: course || null, year: year || null, created_at: now, updated_at: now });
+
+    if (stuErr) {
+      ui.toast(stuErr.message, 'error');
+      loading = false;
+      return;
+    }
+
+    auth.login(
+      { id: user.id, name, email, mobile, role: 'student', verified: true, createdAt: now },
+      user.id
+    );
     loading = false;
     ui.toast('Student profile created!', 'success');
     goto('/training');
@@ -51,29 +68,23 @@
       <p class="text-slate-500 text-sm mt-1">Access courses, webinars, and career guidance</p>
     </div>
     <div class="bg-white rounded-2xl card-shadow p-6">
-      {#if step === 1}
-        <form class="space-y-4" onsubmit={handleStep1}>
-          <div class="grid grid-cols-2 gap-4">
-            <Input label="Full Name" bind:value={name} required />
-            <Input label="Mobile" type="tel" bind:value={mobile} required />
-          </div>
-          <Input label="Email" type="email" bind:value={email} required />
-          <Input label="Institute / College Name" bind:value={institute} required />
-          <div class="grid grid-cols-2 gap-4">
-            <Input label="Course / Programme" placeholder="B.Tech, MBA..." bind:value={course} required />
-            <Select label="Year" options={years} bind:value={year} required />
-          </div>
-          <FileUpload label="Upload CV (Optional)" accept=".pdf,.doc,.docx" maxMb={5} bind:file={cvFile} hint="Optional — upload after registration too" />
-          <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
-            {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
-            Send OTP & Register
-          </button>
-        </form>
-      {:else}
-        <p class="text-center text-sm text-slate-600 mb-6">OTP sent to <span class="font-semibold">{mobile}</span></p>
-        <OTPInput bind:value={otp} onComplete={verifyOTP} />
-        {#if loading}<p class="text-center text-sm text-slate-500 mt-4">Verifying…</p>{/if}
-      {/if}
+      <form class="space-y-4" onsubmit={handleSubmit}>
+        <div class="grid grid-cols-2 gap-4">
+          <Input label="Full Name" bind:value={name} required />
+          <Input label="Mobile" type="tel" bind:value={mobile} required />
+        </div>
+        <Input label="Email" type="email" bind:value={email} required />
+        <Input label="Institute / College Name" bind:value={institute} required />
+        <div class="grid grid-cols-2 gap-4">
+          <Input label="Course / Programme" placeholder="B.Tech, MBA..." bind:value={course} required />
+          <Select label="Year" options={years} bind:value={year} required />
+        </div>
+        <FileUpload label="Upload CV (Optional)" accept=".pdf,.doc,.docx" maxMb={5} bind:file={cvFile} hint="Optional — upload after registration too" />
+        <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
+          {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
+          Create Account
+        </button>
+      </form>
     </div>
   </div>
 </div>
