@@ -30,7 +30,11 @@
       "Bash(where mvn *)",
       "Read(//c/Program Files/**)",
       "Bash(netlify env:set VITE_SUPABASE_URL https://ukterctvbppimteejvfd.supabase.co)",
-      "Bash(netlify env:set VITE_SUPABASE_ANON_KEY sb_publishable_Ci_m1WOuEaLsjl0jbcu7pw_dvp2Bq7A)"
+      "Bash(netlify env:set VITE_SUPABASE_ANON_KEY sb_publishable_Ci_m1WOuEaLsjl0jbcu7pw_dvp2Bq7A)",
+      "Bash(grep -n 'let \\\\|= $state' d:/RSWeb/frontend/src/routes/employer/register/+page.svelte)",
+      "Bash(grep -n 'let \\\\|= $state' d:/RSWeb/frontend/src/routes/jobseeker/register/+page.svelte)",
+      "Bash(grep -n 'let \\\\|= $state' d:/RSWeb/frontend/src/routes/training/faculty/register/+page.svelte)",
+      "Bash(grep -n 'let \\\\|= $state' d:/RSWeb/frontend/src/routes/training/student/register/+page.svelte)"
     ]
   }
 }
