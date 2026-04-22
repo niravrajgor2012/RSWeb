@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { ui } from '$lib/stores/ui.svelte.ts';
   import { supabase } from '$lib/supabase.ts';
@@ -38,7 +39,10 @@
   const expOpts    = ['0–1 years','1–3 years','3–5 years','5–8 years','8+ years'].map(e => ({ label: e, value: e }));
 
   onMount(async () => {
-    if (!auth.user?.id) { loading = false; return; }
+    if (!auth.user?.id) {
+      goto('/auth/login?redirect=/jobseeker/profile');
+      return;
+    }
 
     const { data } = await supabase
       .from('job_seekers')

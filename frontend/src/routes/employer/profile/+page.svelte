@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { ui } from '$lib/stores/ui.svelte.ts';
   import { supabase } from '$lib/supabase.ts';
@@ -29,7 +30,10 @@
   const states = ['Gujarat','Maharashtra','Delhi','Karnataka','Telangana','Tamil Nadu','Rajasthan','UP','MP','West Bengal'].map(s=>({label:s,value:s}));
 
   onMount(async () => {
-    if (!auth.user?.id) { loading = false; return; }
+    if (!auth.user?.id) {
+      goto('/auth/login?redirect=/employer/profile');
+      return;
+    }
 
     const { data } = await supabase
       .from('employers')
