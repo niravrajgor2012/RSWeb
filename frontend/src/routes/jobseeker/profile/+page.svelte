@@ -39,6 +39,7 @@
   const expOpts    = ['0–1 years','1–3 years','3–5 years','5–8 years','8+ years'].map(e => ({ label: e, value: e }));
 
   onMount(async () => {
+    auth.hydrate();
     if (!auth.user?.id) {
       goto('/auth/login?redirect=/jobseeker/profile');
       return;

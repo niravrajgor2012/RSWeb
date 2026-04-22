@@ -28,6 +28,7 @@
   const states = ['Gujarat','Maharashtra','Delhi','Karnataka','Telangana','Tamil Nadu','Rajasthan','UP','MP','West Bengal'].map(s=>({label:s,value:s}));
 
   onMount(async () => {
+    auth.hydrate();
     if (!auth.user?.id) {
       goto('/auth/login?redirect=/institute/profile');
       return;
