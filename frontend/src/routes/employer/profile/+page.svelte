@@ -22,6 +22,7 @@
   let pincode     = $state('');
   let brief       = $state('');
   let logo        = $state<File | null>(null);
+  let logoUrl     = $state('');
   let saving      = $state(false);
   let loading     = $state(true);
   let employerId  = $state<string | null>(null);
@@ -53,14 +54,30 @@
       state_      = data.state ?? '';
       pincode     = data.pincode ?? '';
       brief       = data.brief ?? '';
+      logoUrl     = data.logo_url ?? '';
     }
     loading = false;
   });
+
+  async function uploadLogo(): Promise<string | null> {
+    if (!logo || !employerId) return null;
+    const ext  = logo.name.split('.').pop();
+    const path = `logos/${employerId}.${ext}`;
+    const { error } = await supabase.storage.from('employer-assets').upload(path, logo, { upsert: true });
+    if (error) { ui.toast('Logo upload failed: ' + error.message, 'error'); return null; }
+    const { data } = supabase.storage.from('employer-assets').getPublicUrl(path);
+    return data.publicUrl;
+  }
 
   async function save(e: Event) {
     e.preventDefault();
     if (!employerId) { ui.toast('Employer profile not found.', 'error'); return; }
     saving = true;
+
+    if (logo) {
+      const url = await uploadLogo();
+      if (url) logoUrl = url;
+    }
 
     const now = new Date().toISOString();
     const { error } = await supabase
@@ -76,6 +93,7 @@
         state:            state_ || null,
         pincode:          pincode || null,
         brief:            brief || null,
+        logo_url:         logoUrl || null,
         updated_at:       now,
       })
       .eq('id', employerId);
@@ -137,6 +155,12 @@
 
         <Card padding="lg">
           <h2 class="text-base font-bold mb-5 text-slate-900">Company Logo</h2>
+          {#if logoUrl}
+            <div class="mb-4 flex items-center gap-3">
+              <img src={logoUrl} alt="Current logo" class="w-16 h-16 rounded-xl object-contain border border-slate-200 bg-white p-1" />
+              <p class="text-sm text-slate-500">Current logo — upload a new one to replace it</p>
+            </div>
+          {/if}
           <FileUpload
             label="Upload Logo"
             accept="image/png,image/jpeg,image/svg+xml"
