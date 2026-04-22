@@ -81,9 +81,13 @@
         <Select label="Company Type" options={companyTypes} bind:value={compType} required />
         <Input label="Password" type="password" placeholder="Min 8 characters" bind:value={password} required />
         <p class="text-xs text-slate-500">By registering you agree to our Terms of Service and Privacy Policy.</p>
-        <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
+        <!-- <button type="submit" class="btn-primary w-full justify-center !py-3" disabled={loading}>
           {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
-          Create Account
+          Create Account 
+        </button> -->
+        <button type="button" class="btn-primary w-full justify-center !py-3" disabled={loading}>
+          {#if loading}<span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>{/if}
+          Create Account 
         </button>
       </form>
       <p class="text-center text-sm text-slate-500 mt-4">
