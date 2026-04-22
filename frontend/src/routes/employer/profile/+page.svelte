@@ -59,14 +59,13 @@
     loading = false;
   });
 
-  async function uploadLogo(): Promise<string | null> {
-    if (!logo || !employerId) return null;
-    const ext  = logo.name.split('.').pop();
-    const path = `logos/${employerId}.${ext}`;
-    const { error } = await supabase.storage.from('employer-assets').upload(path, logo, { upsert: true });
-    if (error) { ui.toast('Logo upload failed: ' + error.message, 'error'); return null; }
-    const { data } = supabase.storage.from('employer-assets').getPublicUrl(path);
-    return data.publicUrl;
+  function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload  = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   async function save(e: Event) {
@@ -75,8 +74,7 @@
     saving = true;
 
     if (logo) {
-      const url = await uploadLogo();
-      if (url) logoUrl = url;
+      logoUrl = await fileToBase64(logo);
     }
 
     const now = new Date().toISOString();
