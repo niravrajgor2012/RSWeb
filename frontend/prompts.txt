@@ -1,32 +1,218 @@
-R Square HR Services — Project Prompts
-========================================
-Saved: 2026-04-17
+R Square HR Services — Project Prompts & Answers
+===================================================
+Last Updated: 2026-04-22
 
-1. Update frontend with existing link as attached pdf and write content as it is
-   without missing any information.
-   [Attached: LITERATURE.pdf — 15-page company literature PDF]
+=======================================================================
+SESSION 1 (2026-04-17)
+=======================================================================
 
-2. Create Claude.md file
+Q1. Update frontend with existing link as attached pdf and write content
+    as it is without missing any information.
+    [Attached: LITERATURE.pdf — 15-page company literature PDF]
+A:  Read all 15 pages of LITERATURE.pdf and updated the SvelteKit frontend
+    with full company content — About Us, services, team, mission, vision,
+    quality policy — matching the PDF text exactly.
 
-3. Update frontend with existing link LITERATURE.pdf and create link with attached
-   LINK.pdf and write content as it is without missing any information.
-   [Attached: LITERATURE.pdf + LINK.pdf — SR 1=About Us, SR 2=Management Team, SR 3=Services]
+-----------------------------------------------------------------------
 
-4. Integrate with my frontend
-   [Backend integration with Spring Boot REST API]
+Q2. Create Claude.md file
+A:  Created frontend/CLAUDE.md with full architecture documentation:
+    commands (dev/build/check), Svelte 5 runes mode rules, data layer,
+    routing, API client, auth store, styling tokens, UI components,
+    icon usage pattern.
 
-5. Create About with sub link introduction, Mission & Vision, Quality Policy and
-   Team with sub link S N Rao, Riddhish Rao, Resource Team, and last Services and
-   all its sub links with all content
+-----------------------------------------------------------------------
 
-6. Update frontend with existing link LITERATURE.pdf and create link with attached
-   LINK.pdf and write content as it is without missing any information.
-   Including About with sub link introduction, Mission & Vision, Quality Policy and
-   Team with sub link S N Rao, Riddhish Rao, Resource Team, and last Services and
-   all its sub links
+Q3. Update frontend with LITERATURE.pdf and create links from LINK.pdf.
+    SR 1 = About Us, SR 2 = Management Team, SR 3 = Services
+A:  Added all navigation links per LINK.pdf structure. Populated About Us,
+    Management Team (S N Rao, Riddhish Rao, Resource Team), and all
+    Services sub-pages with content from LITERATURE.pdf.
 
-7. Services sub Link must be working with its on click with justify text
+-----------------------------------------------------------------------
 
-8. Create md file for me
+Q4. Integrate with my frontend (Spring Boot REST API backend)
+A:  Created src/lib/api/client.ts with get/post/put/delete/postForm methods
+    pointing to VITE_API_URL (http://localhost:8080). Created per-domain
+    API modules. Note: pages still use static data — API not yet called
+    by any page at that point.
 
-9. Please save me prompt in text file
+-----------------------------------------------------------------------
+
+Q5. Create About with sub links: Introduction, Mission & Vision, Quality
+    Policy, Team (S N Rao, Riddhish Rao, Resource Team), and Services
+    with all sub links and full content.
+A:  Built all About sub-routes and Services dynamic routes under
+    /services/[slug]. All content populated from data files derived
+    from the PDFs.
+
+-----------------------------------------------------------------------
+
+Q6. Update frontend with LITERATURE.pdf + LINK.pdf including all About
+    sub links and all Services sub links.
+A:  Full content refresh — all About pages and 22 Services pages updated
+    with accurate text. Justified text applied where needed.
+
+-----------------------------------------------------------------------
+
+Q7. Services sub links must be working on click with justified text.
+A:  Fixed /services/[slug] dynamic routing. Each service card links to
+    its detail page. Text alignment set to justify across service
+    detail pages.
+
+-----------------------------------------------------------------------
+
+Q8. Create md file for me
+A:  Created/updated frontend/CLAUDE.md with complete project guidance
+    for future Claude Code sessions.
+
+-----------------------------------------------------------------------
+
+Q9. Please save my prompts in a text file
+A:  Created frontend/prompts.txt (this file) with all prompts saved.
+
+=======================================================================
+SESSION 2 (2026-04-22)
+=======================================================================
+
+Q10. Deploy this project on Netlify with build settings.
+A:   Configured netlify.toml:
+       [build]
+         command = "cd frontend && npm install && npm run build"
+         publish = "frontend/build"
+       [build.environment]
+         NODE_VERSION = "20"
+         NETLIFY_SKIP_FRAMEWORK_DETECTION = "1"
+     Switched svelte.config.js to @sveltejs/adapter-static with
+     fallback: '200.html'. Added frontend/static/_redirects:
+       /* /200.html 200
+
+-----------------------------------------------------------------------
+
+Q11. Resolve Netlify deploy errors (404, wrong publish directory,
+     Essential SvelteKit plugin overriding build output).
+A:   Three issues fixed:
+     1. Wrong publish dir (frontend/private) → set explicit
+        publish = "frontend/build" in netlify.toml
+     2. Netlify Essential SvelteKit plugin overriding publish dir →
+        set NETLIFY_SKIP_FRAMEWORK_DETECTION = "1" via Netlify CLI
+     3. Git remote URL wrong → fixed with git remote set-url origin
+     Site deployed successfully on Netlify after these fixes.
+
+-----------------------------------------------------------------------
+
+Q12. Integrate Supabase as database — remove Spring Boot dependency.
+A:   Installed @supabase/supabase-js. Created src/lib/supabase.ts with
+     Supabase URL + anon key. All pages now query Supabase directly.
+     Spring Boot is no longer needed for current features.
+
+-----------------------------------------------------------------------
+
+Q13. Remove OTP from all auth flows so records can be saved.
+     (Will re-enable OTP in future)
+A:   Removed all SMS/OTP verification steps from:
+     - employer/register
+     - jobseeker/register
+     - training/faculty/register
+     - training/student/register
+     - auth/login
+     Registration now saves directly to Supabase on form submit.
+
+-----------------------------------------------------------------------
+
+Q14. Wire all registration forms directly to Supabase.
+A:   Each registration inserts into two tables:
+     - Employer   → users (role='employer')  + employers
+     - Job Seeker → users (role='jobseeker') + job_seekers
+     - Faculty    → users (role='faculty')   + faculties
+     - Student    → users (role='student')   + students
+     On success: fields cleared, redirect to /auth/login.
+
+-----------------------------------------------------------------------
+
+Q15. Contact form records not saving — RLS error.
+A:   Ran in Supabase SQL Editor:
+       ALTER TABLE contact_enquiries DISABLE ROW LEVEL SECURITY;
+     Contact form now saves successfully.
+
+-----------------------------------------------------------------------
+
+Q16. Disable RLS on all tables (same as contact fix for all tables).
+A:   Ran DISABLE ROW LEVEL SECURITY on all tables:
+     users, employers, job_seekers, faculties, students, institutes,
+     contact_enquiries, job_seeker_skills, jobs (if present).
+
+-----------------------------------------------------------------------
+
+Q17. Display employer table in tabular format.
+A:   Created frontend/src/routes/admin/employers/+page.svelte.
+     Fetches all rows from Supabase employers table and renders them
+     in a styled HTML table with columns: Company, Type, City, State,
+     GSTN, Website, Created At.
+
+-----------------------------------------------------------------------
+
+Q18. Some fields not saved in employer table (gstn, city, state,
+     logo_url, brief, website, address, pincode).
+A:   Fixed employer/profile/+page.svelte save() function to include
+     all missing fields in the Supabase update() call. Also fixed
+     employer/register to pass all fields on initial insert.
+
+-----------------------------------------------------------------------
+
+Q19. Same fix for faculty, student, job seeker registration.
+A:   Reviewed all four registration pages. Ensured all form fields
+     are included in both users insert and role-specific table insert.
+     Profile pages for jobseeker and institute also verified.
+
+-----------------------------------------------------------------------
+
+Q20. Logo upload failed: Bucket not found / RLS violation on
+     Supabase Storage.
+A:   Supabase Storage RLS could not be bypassed with anon key.
+     Solution: converted logo File to base64 data URL using FileReader,
+     stored the base64 string directly in employers.logo_url (text column).
+     No Storage bucket needed. Logo displays via <img src={logoUrl}>.
+
+-----------------------------------------------------------------------
+
+Q21. Page fields must clear and auto-redirect to login after registration.
+A:   Added field reset (all state vars set to '') and goto('/auth/login')
+     after successful registration on all four register pages.
+
+-----------------------------------------------------------------------
+
+Q22. Auth hydration race condition — profile pages not loading user data.
+A:   onMount ran before localStorage was read, so auth.user was null.
+     Fix: call auth.hydrate() as the first line inside each onMount,
+     before the auth.user?.id check. Applied to employer/profile,
+     jobseeker/profile, and institute/profile pages.
+
+-----------------------------------------------------------------------
+
+Q23. Change "Create an account" link in auth/login page to href="#"
+     (no redirect).
+A:   Changed line 102 in frontend/src/routes/auth/login/+page.svelte:
+     href="/employer/register"  →  href="#"
+
+-----------------------------------------------------------------------
+
+Q24. How to make the "Create Account" submit button not redirect.
+A:   Change type="submit" to type="button" on the button element.
+     This prevents form submission and any navigation.
+
+-----------------------------------------------------------------------
+
+Q25. Is Spring Boot deployment required?
+A:   No. Frontend (SvelteKit) talks directly to Supabase via JS client.
+     Spring Boot has no active role in current portal features.
+     Deploy only: SvelteKit → Netlify (already live).
+     Supabase is cloud-hosted — no deployment needed.
+     Spring Boot needed only for future: complex business logic,
+     custom APIs, background jobs, payment processing.
+
+-----------------------------------------------------------------------
+
+Q26. Update prompts.txt with all prompts and answers till today.
+A:   This file — updated with full Q&A format for all 26 prompts
+     across both sessions.
