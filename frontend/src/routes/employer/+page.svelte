@@ -38,7 +38,10 @@
           <Search class="w-5 h-5" /> Search Resumes
         </a>
       {:else}
-        <a href="/employer/register" class="btn-primary text-base !py-3 !px-8">
+        <!-- <a href="/employer/register" class="btn-primary text-base !py-3 !px-8">
+          <Briefcase class="w-5 h-5" /> Register Free
+        </a> -->
+        <a href="#" class="btn-primary text-base !py-3 !px-8">
           <Briefcase class="w-5 h-5" /> Register Free
         </a>
         <a href="/auth/login?redirect=/employer" class="bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors inline-flex items-center gap-2">
