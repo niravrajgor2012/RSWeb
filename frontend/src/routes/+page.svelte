@@ -88,10 +88,11 @@
           class="w-full sm:w-32 text-slate-900 text-sm py-2 outline-none placeholder:text-slate-400"
         />
       </div>
-      <a
-        href="/jobseeker/jobs?q={encodeURIComponent(searchQuery)}&city={encodeURIComponent(searchCity)}"
-        class="btn-primary !py-3 !px-6 shrink-0"
-      >
+      <!-- <a href="/jobseeker/jobs?q={encodeURIComponent(searchQuery)}&city={encodeURIComponent(searchCity)}"
+        class="btn-primary !py-3 !px-6 shrink-0">
+        Search Jobs
+      </a> -->
+      <a href="#" class="btn-primary !py-3 !px-6 shrink-0">
         Search Jobs
       </a>
     </div>
