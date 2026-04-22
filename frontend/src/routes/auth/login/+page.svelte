@@ -98,7 +98,8 @@
           Continue as {roles.find(r => r.value === selectedRole)?.label}
         </button>
         <p class="text-center text-sm text-slate-500 mt-4">
-          New here? <a href="/employer/register" class="text-brand-blue font-semibold hover:underline">Create an account</a>
+          <!-- New here? <a href="/employer/register" class="text-brand-blue font-semibold hover:underline">Create an account</a> -->
+          New here? <a href="#" class="text-brand-blue font-semibold hover:underline">Create an account</a>
         </p>
 
       {:else}
