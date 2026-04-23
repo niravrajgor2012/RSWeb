@@ -216,3 +216,89 @@ A:   No. Frontend (SvelteKit) talks directly to Supabase via JS client.
 Q26. Update prompts.txt with all prompts and answers till today.
 A:   This file — updated with full Q&A format for all 26 prompts
      across both sessions.
+
+=======================================================================
+SESSION 3 (2026-04-23)
+=======================================================================
+
+Q27. Let me know the employer page URL location.
+A:   Employer landing page is at /employer
+     (frontend/src/routes/employer/+page.svelte).
+
+-----------------------------------------------------------------------
+
+Q28. How to make submit button not redirect on employer register page.
+A:   Change type="submit" to type="button" on the submit button element.
+     This prevents form submission and page navigation entirely.
+
+-----------------------------------------------------------------------
+
+Q29. Is the project Svelte talking directly to Supabase? Is Spring Boot
+     deployment required?
+A:   Yes — SvelteKit calls Supabase JS client directly, no backend needed.
+     Spring Boot is not required for any current feature.
+     Only needed in future for: complex business logic, custom APIs,
+     background jobs, or payment processing.
+
+-----------------------------------------------------------------------
+
+Q30. Create .github/workflows/deploy.yml for GitHub Actions live URL.
+A:   Created .github/workflows/deploy.yml deploying to Cloudflare Pages
+     via cloudflare/wrangler-action@v3. Triggers on push to main.
+     Uses secrets: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
+
+-----------------------------------------------------------------------
+
+Q31. GitHub Pages showing 404 on all pages except home.
+A:   GitHub Pages cannot handle SPA routing without base path prefix.
+     Fixing requires adding paths.base = '/RSWeb' in svelte.config.js
+     AND updating every href in the app — too invasive.
+     Recommended switching to Cloudflare Pages instead.
+
+-----------------------------------------------------------------------
+
+Q32. Vercel "Social Account not connected" error on signup.
+A:   Sign up at vercel.com/signup using email instead of GitHub OAuth.
+     The GitHub social account was not linked to any Vercel account.
+
+-----------------------------------------------------------------------
+
+Q33. Is pages.cloudflare.com free for frontend deploy?
+A:   Yes — Cloudflare Pages free tier includes unlimited sites,
+     500 builds/month, unlimited bandwidth, and custom domains.
+
+-----------------------------------------------------------------------
+
+Q34. Install @sveltejs/adapter-cloudflare and configure for Cloudflare Pages.
+A:   Installed @sveltejs/adapter-cloudflare. Updated svelte.config.js to
+     use adapter-cloudflare. Deleted frontend/static/_redirects (not
+     compatible with adapter-cloudflare). Committed and pushed.
+
+-----------------------------------------------------------------------
+
+Q35. Cloudflare build failing — _redirects file error.
+A:   Error: "_redirects file should be placed in project root".
+     Fix: deleted frontend/static/_redirects. Committed as "cloudflare".
+     _redirects is only for adapter-static, not adapter-cloudflare.
+
+-----------------------------------------------------------------------
+
+Q36. Cloudflare still failing — wrangler deploy modifying package.json.
+A:   Cloudflare build settings had deploy command "npx wrangler deploy"
+     which treated the project as a Cloudflare Worker. Wrangler auto-
+     modified package.json build script to "wrangler types --check &&
+     vite build", then failed because worker-configuration.d.ts missing.
+     Fix: created frontend/wrangler.toml with name, main (_worker.js),
+     compatibility_date, nodejs_compat flag, and [assets] directory set
+     to .svelte-kit/cloudflare. This gives wrangler the config it needs
+     so it no longer auto-modifies package.json.
+     Cloudflare Pages build settings:
+       Build command:    npm run build
+       Deploy command:   npx wrangler deploy
+       Path:             frontend
+       Output dir:       .svelte-kit/cloudflare
+
+-----------------------------------------------------------------------
+
+Q37. Update prompts.txt with all prompts and answers till today (Session 3).
+A:   This file — updated with Session 3 Q&A (Q27–Q37).
