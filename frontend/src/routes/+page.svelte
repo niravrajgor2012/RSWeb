@@ -45,7 +45,8 @@
   <div class="bg-brand-blue text-white text-center py-2.5 px-4 text-sm font-medium">
     <span class="mr-2 font-bold">📢</span>
     {latestAnnouncement.title}
-    <a href="/media/announcements" class="underline ml-2 opacity-90 hover:opacity-100">View Details →</a>
+    <!-- <a href="/media/announcements" class="underline ml-2 opacity-90 hover:opacity-100">View Details →</a> -->
+    <a href="#" class="underline ml-2 opacity-90 hover:opacity-100">View Details →</a>
   </div>
 {/if}
 
