@@ -1,79 +1,83 @@
-# RSQuare HR Solutions — Job Portal
+# RSQuare HR Solutions — Web Portal
 
-A full-stack HR job portal for RSQuare HR Solutions, Ahmedabad. Connects employers, job seekers, training institutes, and faculty on a single platform.
+Official web portal for **RSQuare HR Solutions**, an MSME HR consulting firm based in Ahmedabad, Gujarat, India. Founded by Shri S N Rao, Former Head-HR of IIM Ahmedabad.
+
+🌐 **Live:** [rsquarehr.com](https://rsquarehr.com)
+
+---
+
+## Repository Layout
+
+```
+RSWeb/
+├── frontend/          # SvelteKit 5 + Cloudflare Workers
+├── backend/           # Spring Boot 3.2 REST API (Java 17)
+├── .github/workflows/ # CI/CD — Cloudflare Workers deploy
+└── CLAUDE.md          # AI assistant project guide
+```
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Frontend | SvelteKit 5 (runes mode), Tailwind CSS v4, TypeScript 6 |
-| Backend | Spring Boot 3.2, Java 17, Spring Security (JWT) |
-| Database | PostgreSQL via Supabase |
-| Deployment | Cloudflare Pages (frontend), manual (backend) |
-| Auth | OTP-based (mobile/email) + JWT |
+|---|---|
+| Frontend | SvelteKit 5 (Svelte 5 Runes mode), Tailwind CSS v4, TypeScript 6 |
+| Hosting | Cloudflare Workers (rsquarehr.com + www.rsquarehr.com) |
+| Backend | Spring Boot 3.2, Java 17, Spring Security (JWT HS512) |
+| Database | PostgreSQL on Supabase (28 tables) |
+| Auth | OTP-based (mobile/email) + JWT, 24-hour expiry |
+| Testing | Playwright E2E — 25 tests across Chromium |
 
 ---
 
-## Project Structure
-
-```
-RSWeb/
-├── frontend/          # SvelteKit 5 web app
-│   ├── src/
-│   │   ├── lib/
-│   │   │   ├── api/        # REST client modules
-│   │   │   ├── components/ # UI + layout components
-│   │   │   ├── data/       # Static TypeScript content
-│   │   │   ├── stores/     # Auth & UI state (runes)
-│   │   │   └── types/      # Shared TypeScript types
-│   │   └── routes/         # SvelteKit file-based routes
-│   ├── svelte.config.js
-│   └── wrangler.toml       # Cloudflare Workers config
-│
-├── backend/           # Spring Boot REST API
-│   ├── src/main/java/com/rsquare/portal/
-│   │   ├── controller/ # REST endpoints
-│   │   ├── service/    # Business logic
-│   │   ├── repository/ # Spring Data JPA
-│   │   ├── entity/     # JPA entities (16 tables)
-│   │   ├── dto/        # Request / response DTOs
-│   │   ├── security/   # JWT filter + provider
-│   │   └── config/     # Security, CORS, file serving
-│   └── supabase_schema.sql  # Full DB schema (run once)
-│
-└── .github/workflows/deploy.yml  # Cloudflare Pages CI/CD
-```
-
----
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
 - Node.js 20+
-- Java 17+
-- Maven 3.8+
-- A [Supabase](https://supabase.com) project with PostgreSQL
+- Java 17+ and Maven 3.8+
+- A [Supabase](https://supabase.com) project
 
----
+### Frontend
 
-### 1. Database Setup
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # Production build
+npm run preview    # Preview build
+```
 
-1. Create a Supabase project
-2. Open the **SQL Editor** and run `backend/supabase_schema.sql`
-3. Note your project URL and connection string from **Project Settings → Database**
-
----
-
-### 2. Backend
+### Backend
 
 ```bash
 cd backend
+mvn spring-boot:run   # http://localhost:8080
 ```
 
-Edit `src/main/resources/application.properties`:
+### E2E Tests
+
+```bash
+cd frontend
+npm test              # Run all 25 Playwright tests (headless)
+npm run test:ui       # Interactive Playwright UI
+npm run test:report   # Open HTML test report
+```
+
+---
+
+## Setup
+
+### 1. Database
+
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Open **SQL Editor** → run `backend/supabase_schema.sql` (creates 28 tables)
+3. Copy the connection string from **Project Settings → Database**
+
+### 2. Backend
+
+Edit `backend/src/main/resources/application.properties`:
 
 ```properties
 spring.datasource.url=jdbc:postgresql://<host>:5432/postgres?sslmode=require
@@ -83,22 +87,18 @@ app.jwt.secret=<64-char-base64-secret>
 app.cors.allowed-origins=http://localhost:5173
 ```
 
+Generate a JWT secret:
 ```bash
-mvn spring-boot:run
-# API available at http://localhost:8080
+openssl rand -base64 64
 ```
-
----
 
 ### 3. Frontend
 
-```bash
-cd frontend
-cp .env.example .env
-# Edit .env: set VITE_API_URL=http://localhost:8080
-npm install
-npm run dev
-# App available at http://localhost:5173
+Create `frontend/.env`:
+```
+VITE_API_URL=http://localhost:8080
+VITE_SUPABASE_URL=https://<ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon-key>
 ```
 
 ---
@@ -106,11 +106,11 @@ npm run dev
 ## User Roles
 
 | Role | Portal | Key Features |
-|------|--------|-------------|
-| Employer | `/employer` | Post jobs, search resumes, manage packages |
-| Job Seeker | `/jobseeker` | Browse & apply for jobs, manage profile, upload CV |
-| Institute | `/institute` | Manage institute profile |
-| Faculty | `/training` | Manage faculty profile |
+|---|---|---|
+| Employer | `/employer` | Post jobs, resume search, manage packages |
+| Job Seeker | `/jobseeker` | Browse & apply for jobs, upload CV |
+| Institute | `/institute` | Manage institute profile & brochure |
+| Faculty | `/training` | Manage courses & faculty profile |
 | Student | `/training` | Register for courses |
 | Admin | `/admin` | Platform management *(in progress)* |
 
@@ -119,61 +119,53 @@ npm run dev
 ## Pages
 
 | Route | Description |
-|-------|-------------|
-| `/` | Home / landing |
+|---|---|
+| `/` | Home |
 | `/about` | About RSQuare, mission & vision |
 | `/management` | Leadership & resource team |
 | `/services` | All 22 HR services |
-| `/services/[slug]` | Individual service detail |
+| `/services/[slug]` | Service detail |
 | `/clients` | Client logos |
 | `/media` | Announcements & media gallery |
 | `/training` | Training portal |
+| `/training/courses/[id]` | Course detail |
 | `/contact` | Contact form |
 | `/sitemap` | Full site navigation index |
+| `/auth/login` | OTP login |
+| `/employer/*` | Employer portal |
+| `/jobseeker/*` | Job seeker portal |
+| `/institute/*` | Institute portal |
 
 ---
 
 ## API Overview
 
-All responses follow: `{ success, message, data }`
+All responses: `{ success, message, data }`
 
-| Endpoint Group | Base Path | Access |
+| Group | Base Path | Access |
 |---|---|---|
-| Auth | `POST /api/auth/**` | Public |
-| Jobs | `GET /api/jobs/**` | Public |
+| Auth | `/api/auth/**` | Public |
+| Jobs | `/api/jobs/**` | Public |
 | Employer | `/api/employer/**` | EMPLOYER role |
 | Job Seeker | `/api/jobseeker/**` | JOBSEEKER role |
 | Institute | `/api/institute/**` | INSTITUTE role |
 | Training | `/api/training/**` | Mixed |
 | Media | `/api/media/**` | Public / ADMIN |
-| Public | `/api/public/**` | Public (clients, packages, stats) |
+| Public | `/api/public/**` | Public |
 
----
-
-## Auth Flow
-
-```
-1. POST /api/auth/otp/send      { mobile or email }
-2. POST /api/auth/otp/verify    { target, code }
-3. POST /api/auth/login         { mobile/email, password }
-   → returns JWT (24-hour expiry)
-4. All protected requests: Authorization: Bearer <token>
-```
-
-**Dev mode:** OTP is logged to the console. Use code `000000` as bypass.
+**Dev OTP bypass:** code `000000` — OTP is logged to console.
 
 ---
 
 ## Deployment
 
-### Frontend — Cloudflare Pages
+### Frontend → Cloudflare Workers
 
-Push to the `main` branch. GitHub Actions runs the build and deploys via Wrangler.
+Push to `main` → GitHub Actions builds and deploys via Wrangler automatically.
 
-```bash
-cd frontend
-npm run build   # output: .svelte-kit/cloudflare/
-```
+- Production: `https://rsquarehr.com` and `https://www.rsquarehr.com`
+- Preview: `https://rsweb.niravrajgor2012.workers.dev`
+- Config: `frontend/wrangler.toml`
 
 ### Backend
 
@@ -183,28 +175,35 @@ mvn clean package -DskipTests
 java -jar target/*.jar
 ```
 
-No CI/CD is configured for the backend yet.
+No CI/CD configured for backend yet.
 
 ---
 
-## HR Services Offered
+## What Is Not Yet Built
 
-Permanent Staffing · Temporary Staffing · Contract Staffing · Executive Search ·
-Campus Recruitment · Volume Hiring · Technical Recruitment · IT Staffing ·
-Non-IT Staffing · RPO · Background Verification · Payroll Management ·
-HR Consulting · Compliance Management · Training & Development ·
-Skill Development · Onboarding Support · Labour Law Consulting ·
-Outplacement Services · HR Audit · Workforce Planning · HR Outsourcing
+- Admin panel (`/admin`)
+- OTP delivery via SMS/email (console-only in dev)
+- Backend CI/CD pipeline
+- Production secrets rotation
 
 ---
 
 ## Brand Colors
 
 | Token | Hex | Usage |
-|-------|-----|-------|
-| `brand-navy` | `#0f2d5c` | Primary headings, navbar |
+|---|---|---|
+| `brand-navy` | `#0f2d5c` | Headings, navbar |
 | `brand-blue` | `#1a56db` | Buttons, links |
-| `brand-teal` | `#0891b2` | Accents, highlights |
+| `brand-teal` | `#0891b2` | Accents |
 | `brand-accent` | `#06b6d4` | Gradients, icons |
 | `brand-light` | `#e0f2fe` | Backgrounds, badges |
 | `surface` | `#f8fafc` | Page backgrounds |
+
+---
+
+## Contact
+
+**RSQuare HR Solutions**
+Ahmedabad, Gujarat, India – 380 015
+Email: info@rsquarehr.com
+Website: [rsquarehr.com](https://rsquarehr.com)
