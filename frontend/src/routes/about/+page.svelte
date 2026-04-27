@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Target, Eye, Heart, Award } from 'lucide-svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import Card from '$lib/components/ui/Card.svelte';
   import Tabs from '$lib/components/ui/Tabs.svelte';
 
@@ -16,7 +16,7 @@
     mission: 'mission', vision: 'mission',
     quality: 'quality',
   };
-  let initialTab = $derived(hashMap[$page.url.hash.replace('#', '')] ?? 'intro');
+  let initialTab = $derived(hashMap[page.url.hash.replace('#', '')] ?? 'intro');
 
   const values = [
     { icon: Heart,  title: 'People First',    desc: 'Every decision starts and ends with human impact.' },

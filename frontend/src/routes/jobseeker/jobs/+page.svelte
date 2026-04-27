@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { MapPin, Briefcase, Building2, Clock, ChevronDown, SlidersHorizontal, X } from 'lucide-svelte';
   import Card from '$lib/components/ui/Card.svelte';
   import Badge from '$lib/components/ui/Badge.svelte';
@@ -13,20 +13,19 @@
   let { data }: { data: PageData } = $props();
   let filtersOpen = $state(false);
 
-  const typeOptions    = jobTypes.map(t => ({ label: t, value: t }));
   const cityOptions    = jobCities.map(c => ({ label: c, value: c }));
   const deptOptions    = jobDepartments.map(d => ({ label: d, value: d }));
   const etypeOptions   = [{ label: 'Direct', value: 'Direct' }, { label: 'Consultant', value: 'Consultant' }];
 
   function updateURL(key: string, value: string) {
-    const u = new URL($page.url);
+    const u = new URL(page.url);
     if (value) u.searchParams.set(key, value); else u.searchParams.delete(key);
     u.searchParams.delete('page');
     goto(u.toString(), { replaceState: true, keepFocus: true });
   }
 
   function toggleType(type: string) {
-    const u = new URL($page.url);
+    const u = new URL(page.url);
     const types = u.searchParams.getAll('type');
     if (types.includes(type)) {
       u.searchParams.delete('type');
@@ -218,7 +217,7 @@
           page={data.page}
           total={data.total}
           perPage={data.perPage}
-          onchange={(p) => { const u = new URL($page.url); u.searchParams.set('page', String(p)); goto(u.toString()); }}
+          onchange={(p) => { const u = new URL(page.url); u.searchParams.set('page', String(p)); goto(u.toString()); }}
         />
       {/if}
     </div>

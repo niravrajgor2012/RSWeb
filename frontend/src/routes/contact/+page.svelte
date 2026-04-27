@@ -8,8 +8,8 @@
   import { services } from '$lib/data/services.ts';
 
   import { supabase } from '$lib/supabase.ts';
-  import { page } from '$app/stores';
-  const preselect = $page.url.searchParams.get('service') ?? '';
+  import { page } from '$app/state';
+  const preselect = page.url.searchParams.get('service') ?? '';
 
   let name     = $state('');
   let email    = $state('');
