@@ -36,7 +36,11 @@
       "Bash(grep -n 'let \\\\|= $state' d:/RSWeb/frontend/src/routes/training/faculty/register/+page.svelte)",
       "Bash(grep -n 'let \\\\|= $state' d:/RSWeb/frontend/src/routes/training/student/register/+page.svelte)",
       "Bash(rm d:/RSWeb/netlify.toml)",
-      "Bash(rm -rf d:/RSWeb/frontend/.netlify)"
+      "Bash(rm -rf d:/RSWeb/frontend/.netlify)",
+      "Bash(npx playwright *)",
+      "Bash(npm test *)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(git fetch *)"
     ]
   }
 }
