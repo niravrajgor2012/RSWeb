@@ -1,16 +1,17 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { ui } from '$lib/stores/ui.svelte.ts';
   import { supabase } from '$lib/supabase.ts';
   import Input from '$lib/components/ui/Input.svelte';
   import { LogIn, Briefcase, Users, GraduationCap, TrendingUp } from 'lucide-svelte';
+  import type { Component } from 'svelte';
   import type { UserRole } from '$lib/types/auth.ts';
 
-  const redirect = $page.url.searchParams.get('redirect') ?? '/';
+  const redirect = page.url.searchParams.get('redirect') ?? '/';
 
-  const roles: { value: UserRole; label: string; icon: unknown; desc: string }[] = [
+  const roles: { value: UserRole; label: string; icon: Component; desc: string }[] = [
     { value: 'employer',  label: 'Employer',   icon: Briefcase,     desc: 'Post jobs & search resumes' },
     { value: 'jobseeker', label: 'Job Seeker', icon: Users,         desc: 'Find & apply to jobs' },
     { value: 'institute', label: 'Institute',  icon: GraduationCap, desc: 'University / College' },
@@ -87,8 +88,7 @@
               onclick={() => selectedRole = r.value}
               class="p-4 rounded-xl border-2 text-left transition-all {selectedRole === r.value ? 'border-brand-blue bg-blue-50' : 'border-slate-100 hover:border-slate-200'}"
             >
-              <!-- @ts-ignore -->
-              <svelte:component this={r.icon} class="w-5 h-5 mb-2 {selectedRole === r.value ? 'text-brand-blue' : 'text-slate-400'}" />
+              <r.icon class="w-5 h-5 mb-2 {selectedRole === r.value ? 'text-brand-blue' : 'text-slate-400'}" />
               <p class="font-bold text-sm text-slate-900">{r.label}</p>
               <p class="text-xs text-slate-400 mt-0.5">{r.desc}</p>
             </button>

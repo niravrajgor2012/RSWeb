@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { auth } from '$lib/stores/auth.svelte.ts';
   import { ui } from '$lib/stores/ui.svelte.ts';
   import { services, serviceCategories } from '$lib/data/services.ts';
@@ -30,7 +30,7 @@
   ];
 
   function isActive(href: string) {
-    return $page.url.pathname === href || $page.url.pathname.startsWith(href + '/');
+    return page.url.pathname === href || page.url.pathname.startsWith(href + '/');
   }
 
   function openMenu() { clearTimeout(closeTimer); servicesOpen = true; }
